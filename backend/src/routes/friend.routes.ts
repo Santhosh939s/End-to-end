@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { FriendRepository } from '../repositories/friend.repository';
 import { ChatRepository } from '../repositories/chat.repository';
 import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
@@ -28,7 +28,7 @@ router.post('/requests/send', async (req: AuthRequest, res) => {
     }
 
     const friendship = await FriendRepository.createFriendRequest(
-      uuidv4(),
+      randomUUID(),
       currentUserId,
       targetUserId
     );
@@ -52,7 +52,7 @@ router.post('/requests/:id/accept', async (req: AuthRequest, res) => {
     const updated = await FriendRepository.updateFriendshipStatus(friendship.id, 'accepted', currentUserId);
 
     // Automatically create a conversation when accepted
-    const conversationId = uuidv4();
+    const conversationId = randomUUID();
     await ChatRepository.createConversation(conversationId, friendship.user1Id, friendship.user2Id);
 
     res.json({ friendship: updated, conversationId });

@@ -1,7 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { randomUUID } from 'crypto';
 
 export interface IUser extends Document {
-  id: string; // Using string id (uuid) instead of default ObjectId to maintain compatibility with existing frontend
+  id: string; // Using string id (randomUUID) instead of default ObjectId to maintain compatibility with existing frontend
   username: string;
   email: string;
   fullName: string;

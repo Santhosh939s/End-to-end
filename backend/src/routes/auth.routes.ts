@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { UserRepository } from '../repositories/user.repository';
 import { ChatRepository } from '../repositories/chat.repository';
 import { z } from 'zod';
@@ -37,7 +37,7 @@ router.post('/register', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(data.password, 10);
-    const id = uuidv4();
+    const id = randomUUID();
 
     let encryptedFaceDescriptor = null;
     let serverEncryptedPrivateKey = null;

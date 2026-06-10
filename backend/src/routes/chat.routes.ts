@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ChatRepository } from '../repositories/chat.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
@@ -77,7 +77,7 @@ router.post('/messages/send', async (req: AuthRequest, res) => {
     }
 
     const message = await ChatRepository.createMessage({
-      id: uuidv4(),
+      id: randomUUID(),
       conversationId,
       senderId: currentUserId,
       receiverId,
