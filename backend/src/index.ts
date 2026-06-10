@@ -38,4 +38,4 @@ connectDB().then(() => {
 });
 
 // Export the Express API for Vercel Serverless
-export default app;
+module.exports = app;
