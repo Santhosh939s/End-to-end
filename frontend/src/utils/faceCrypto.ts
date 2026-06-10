@@ -88,7 +88,7 @@ export const encryptBiometricPayload = async (descriptor: Float32Array): Promise
   };
   
   const rsaB64 = arrayBufferToBase64(encryptedAesKeyBuffer);
-  const ivB64 = arrayBufferToBase64(iv);
+  const ivB64 = arrayBufferToBase64(iv.buffer);
   const payloadB64 = arrayBufferToBase64(encryptedPayloadBuffer);
 
   return `${rsaB64}.${ivB64}.${payloadB64}`;

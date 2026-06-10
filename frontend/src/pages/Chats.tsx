@@ -72,7 +72,7 @@ const Chats = () => {
           encryptedMessages.map(async (msg) => {
             try {
               // If the sender is deleted and this message's content was wiped
-              if (activeChat.otherUser.username === 'deleted' && msg.senderId !== currentUser?.id && msg.encryptedContent === '') {
+              if (conversation.otherUser.username === 'deleted' && msg.senderId !== currentUser?.id && msg.encryptedContent === '') {
                 return { ...msg, decryptedText: 'His/her account permanently deleted.' };
               }
 

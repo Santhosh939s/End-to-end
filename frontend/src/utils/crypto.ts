@@ -95,7 +95,7 @@ export const encryptPrivateKey = async (privateKeyBase64: string, masterKey: Cry
 
   return {
     encryptedPrivateKey: bufferToBase64(encrypted),
-    iv: bufferToBase64(iv),
+    iv: bufferToBase64(iv.buffer),
   };
 };
 
@@ -173,7 +173,7 @@ export const encryptMessage = async (
 
   return {
     encryptedContent: bufferToBase64(encryptedContentBuffer),
-    iv: bufferToBase64(iv),
+    iv: bufferToBase64(iv.buffer),
     encryptedKeyForReceiver: bufferToBase64(encryptedKeyForReceiver),
     encryptedKeyForSender: bufferToBase64(encryptedKeyForSender)
   };
@@ -225,5 +225,5 @@ export const decryptMessage = async (
 };
 
 export const generateSalt = () => {
-  return bufferToBase64(window.crypto.getRandomValues(new Uint8Array(16)));
+  return bufferToBase64(window.crypto.getRandomValues(new Uint8Array(16)).buffer);
 };

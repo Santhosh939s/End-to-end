@@ -21,7 +21,7 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated || isLocked) return;
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number | undefined;
 
     const resetTimer = () => {
       clearTimeout(timeoutId);
