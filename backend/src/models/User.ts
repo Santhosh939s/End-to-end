@@ -14,6 +14,7 @@ export interface IUser extends Document {
   encryptedFaceDescriptor: string | null;
   serverEncryptedPrivateKey: string | null;
   bio: string;
+  isAdmin: boolean;
   createdAt: Date;
 }
 
@@ -30,6 +31,7 @@ const UserSchema: Schema = new Schema({
   encryptedFaceDescriptor: { type: String, default: null },
   serverEncryptedPrivateKey: { type: String, default: null },
   bio: { type: String, default: '' },
+  isAdmin: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 

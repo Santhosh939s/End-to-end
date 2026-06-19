@@ -9,6 +9,7 @@ import Requests from './pages/Requests';
 import Chats from './pages/Chats';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import { AdminDashboard } from './pages/AdminDashboard';
 import LockScreen from './components/LockScreen';
 import { useAuthStore } from './store/auth.store';
 
@@ -71,6 +72,7 @@ function App() {
           <Route path="requests" element={<Requests />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="admin" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </Router>

@@ -7,6 +7,7 @@ export interface User {
   email: string;
   bio: string;
   faceEnabled?: boolean;
+  isAdmin?: boolean;
 }
 
 export interface AuthState {

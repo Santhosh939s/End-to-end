@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { MessageSquare, Users, UserPlus, UserCircle, Settings, LogOut, Shield } from 'lucide-react';
+import { MessageSquare, Users, UserPlus, UserCircle, Settings, LogOut, Shield, ShieldAlert } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 import clsx from 'clsx';
 
@@ -14,6 +14,7 @@ const navItems = [
 
 const DashboardLayout = () => {
   const logout = useAuthStore(state => state.logout);
+  const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -21,10 +22,15 @@ const DashboardLayout = () => {
     navigate('/login');
   };
 
+  const dynamicNavItems = [...navItems];
+  if (user?.isAdmin) {
+    dynamicNavItems.push({ icon: ShieldAlert, label: 'Admin', path: '/dashboard/admin' });
+  }
+
   const NavContent = () => (
     <>
       <div className="flex-1 space-y-2 py-4 px-3 flex md:flex-col justify-around md:justify-start">
-        {navItems.map((item) => (
+        {dynamicNavItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

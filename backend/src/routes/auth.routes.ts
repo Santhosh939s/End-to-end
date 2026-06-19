@@ -71,7 +71,7 @@ router.post('/register', async (req, res) => {
       serverEncryptedPrivateKey
     });
 
-    res.status(201).json({ message: 'User registered successfully', userId: id });
+    res.status(201).json({ message: 'User registered successfully', userId: id, isAdmin: user.isAdmin });
   } catch (error: any) {
     console.error('Registration Error:', error);
     res.status(400).json({ error: error.message || 'Registration failed' });
@@ -92,7 +92,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user.id, username: user.username, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       token,
@@ -103,6 +103,7 @@ router.post('/login', async (req, res) => {
         email: user.email,
         bio: user.bio,
         faceEnabled: !!user.faceEnabled,
+        isAdmin: user.isAdmin,
       },
       crypto: {
         publicKey: user.publicKey,
@@ -152,7 +153,7 @@ router.post('/login-face', async (req, res) => {
     // 3. User is recognized! Unlock the server escrow key
     const decryptedPrivateKey = symmetricDecrypt(bestMatch.serverEncryptedPrivateKey!);
 
-    const token = jwt.sign({ id: bestMatch.id, username: bestMatch.username }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: bestMatch.id, username: bestMatch.username, isAdmin: bestMatch.isAdmin }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       token,
@@ -163,6 +164,7 @@ router.post('/login-face', async (req, res) => {
         email: bestMatch.email,
         bio: bestMatch.bio,
         faceEnabled: true,
+        isAdmin: bestMatch.isAdmin,
       },
       crypto: {
         publicKey: bestMatch.publicKey,
