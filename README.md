@@ -1,7 +1,5 @@
 # CipherLink: End-to-End Encrypted Messaging Platform 🔒
 
-![CipherLink Banner](https://images.unsplash.com/photo-1614064641913-6b170cad8bc6?q=80&w=2000&auto=format&fit=crop)
-
 **CipherLink** is a modern, highly secure, full-stack web application designed to provide absolute privacy for digital communication. Built from the ground up with a custom zero-knowledge architecture, it features military-grade End-to-End Encryption (E2EE), Biometric Face Login, and an enterprise-grade Admin security dashboard.
 
 ---
