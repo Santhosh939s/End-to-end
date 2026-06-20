@@ -31,7 +31,7 @@ class UserRepository {
                 { username: searchPattern },
                 { fullName: searchPattern }
             ]
-        }).select('id username email fullName publicKey bio createdAt faceEnabled').lean();
+        }).select('id username email fullName publicKey bio createdAt faceEnabled').limit(50).lean();
     }
     static async getAllFaceEnabledUsers() {
         return User_1.default.find({ faceEnabled: 1 }).lean();

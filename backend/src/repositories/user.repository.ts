@@ -30,7 +30,7 @@ export class UserRepository {
         { username: searchPattern },
         { fullName: searchPattern }
       ]
-    }).select('id username email fullName publicKey bio createdAt faceEnabled').lean();
+    }).select('id username email fullName publicKey bio createdAt faceEnabled').limit(50).lean();
   }
 
   static async getAllFaceEnabledUsers() {
