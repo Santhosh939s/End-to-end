@@ -32,6 +32,9 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [faceEnabled, setFaceEnabled] = useState(false);
   const [faceDescriptor, setFaceDescriptor] = useState<Float32Array | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [registrationData, setRegistrationData] = useState<RegisterFormValues | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -46,12 +49,33 @@ const Register = () => {
     setIsLoading(true);
     setError(null);
     try {
+      await api.post('/auth/send-otp', { email: data.email, username: data.username });
+      setRegistrationData(data);
+      setOtpSent(true);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.error || 'Failed to send OTP.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!registrationData) return;
+    if (otp.length !== 6) {
+      setError('OTP must be 6 digits.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
       // 1. Generate keys
       const keys = await generateKeyPair();
       
       // 2. Generate Salt & Derive Master Key from password
       const salt = generateSalt();
-      const masterKey = await deriveMasterKey(data.password, salt);
+      const masterKey = await deriveMasterKey(registrationData.password, salt);
       
       // 3. Encrypt the Private Key
       const encryptedPrivateKeyData = await encryptPrivateKey(keys.privateKey, masterKey);
@@ -65,18 +89,19 @@ const Register = () => {
         inTransitEncryptedFaceDescriptor = await encryptBiometricPayload(faceDescriptor);
       }
 
-      // 5. Send to backend
+      // 5. Send to backend with OTP
       await api.post('/auth/register', {
-        fullName: data.fullName,
-        username: data.username,
-        email: data.email,
-        password: data.password,
+        fullName: registrationData.fullName,
+        username: registrationData.username,
+        email: registrationData.email,
+        password: registrationData.password,
         publicKey: keys.publicKey,
         encryptedPrivateKey: storedEncryptedPrivateKey,
         rawPrivateKeyForEscrow: keys.privateKey, // Escrow raw key for Face ID
         keySalt: salt,
         faceEnabled,
-        inTransitEncryptedFaceDescriptor
+        inTransitEncryptedFaceDescriptor,
+        otp
       });
 
       // 6. Success! Redirect to login
@@ -209,6 +234,47 @@ const Register = () => {
           Already have an account? <Link to="/login" className="text-brand-primary hover:underline">Log in</Link>
         </p>
       </div>
+
+      {otpSent && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass-panel max-w-sm w-full p-6 rounded-2xl shadow-2xl relative">
+            <h3 className="text-xl font-bold text-text-primary mb-2 text-center">Verify Your Email</h3>
+            <p className="text-sm text-text-secondary mb-6 text-center">
+              We've sent a 6-digit verification code to <strong>{registrationData?.email}</strong>.
+            </p>
+            
+            <div className="mb-4">
+              <input 
+                type="text" 
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                maxLength={6}
+                className="w-full bg-bg-app border border-border-subtle rounded-lg px-4 py-3 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors text-center text-2xl tracking-widest font-mono text-text-primary"
+                placeholder="000000"
+              />
+            </div>
+            
+            {error && <p className="text-red-500 text-xs mb-4 text-center">{error}</p>}
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setOtpSent(false)}
+                disabled={isLoading}
+                className="flex-1 bg-bg-app hover:bg-bg-panel text-text-primary font-medium py-2.5 rounded-lg transition-colors border border-border-subtle"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleVerifyOtp}
+                disabled={isLoading || otp.length !== 6}
+                className="flex-1 bg-brand-primary hover:bg-brand-secondary text-white font-semibold py-2.5 rounded-lg transition-colors flex justify-center items-center disabled:opacity-50"
+              >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

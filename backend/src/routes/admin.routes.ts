@@ -32,7 +32,7 @@ router.get('/users', authenticateToken, requireAdmin, async (req: AuthRequest, r
 // Wipe user's chat history and delete their account completely
 router.delete('/users/:id', authenticateToken, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    const targetUserId = req.params.id;
+    const targetUserId = req.params.id as string;
     
     const user = await User.findOne({ id: targetUserId });
     if (!user) {

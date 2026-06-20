@@ -20,6 +20,7 @@ export const symmetricEncrypt = (text: string): string => {
 
 export const symmetricDecrypt = (encryptedData: string): string => {
   const [ivHex, encryptedText] = encryptedData.split(':');
+  if (!ivHex || !encryptedText) return '';
   const iv = Buffer.from(ivHex, 'hex');
   const decipher = crypto.createDecipheriv('aes-256-cbc', getSecretKey(), iv);
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
@@ -56,7 +57,9 @@ export const decryptInTransitPayload = (hybridPayload: string): string => {
   const parts = hybridPayload.split('.');
   if (parts.length !== 3) throw new Error('Invalid hybrid payload format');
 
-  const [rsaB64, ivB64, payloadB64] = parts;
+  const rsaB64 = parts[0] as string;
+  const ivB64 = parts[1] as string;
+  const payloadB64 = parts[2] as string;
 
   // 1. Decrypt the AES key using RSA
   const encryptedAesKey = Buffer.from(rsaB64, 'base64');

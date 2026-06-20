@@ -7,6 +7,8 @@ import { ChatRepository } from '../repositories/chat.repository';
 import { z } from 'zod';
 import { getServerKeys, decryptInTransitPayload, symmetricEncrypt, symmetricDecrypt, calculateDistance } from '../utils/crypto';
 import { authenticateToken, AuthRequest } from '../middleware/auth.middleware';
+import { OtpRepository } from '../repositories/otp.repository';
+import { sendOtpEmail } from '../utils/email';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret_cipherlink_key_for_dev';
@@ -21,6 +23,7 @@ const registerSchema = z.object({
   keySalt: z.string(),
   faceEnabled: z.boolean().optional(),
   inTransitEncryptedFaceDescriptor: z.string().optional(),
+  otp: z.string().length(6),
 });
 
 router.get('/server-key', (req, res) => {
@@ -34,6 +37,11 @@ router.post('/register', async (req, res) => {
     const existingUser = await UserRepository.findByUsername(data.username);
     if (existingUser) {
       return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    const isValidOtp = await OtpRepository.verifyOtp(data.email, data.otp);
+    if (!isValidOtp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
     }
 
     const passwordHash = await bcrypt.hash(data.password, 10);
@@ -71,10 +79,36 @@ router.post('/register', async (req, res) => {
       serverEncryptedPrivateKey
     });
 
-    res.status(201).json({ message: 'User registered successfully', userId: id, isAdmin: user.isAdmin });
+    res.status(201).json({ message: 'User registered successfully', userId: id, isAdmin: user?.isAdmin });
   } catch (error: any) {
     console.error('Registration Error:', error);
     res.status(400).json({ error: error.message || 'Registration failed' });
+  }
+});
+
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { email, username } = req.body;
+    if (!email || !username) {
+      return res.status(400).json({ error: 'Email and username are required' });
+    }
+
+    // Check if username already exists
+    const existingUsername = await UserRepository.findByUsername(username);
+    if (existingUsername) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await OtpRepository.createOtp(email, otp);
+    await sendOtpEmail(email, otp);
+
+    res.json({ message: 'OTP sent successfully to email' });
+  } catch (error: any) {
+    console.error('Send OTP Error:', error);
+    res.status(500).json({ error: 'Failed to send OTP. Please check your email configuration.' });
   }
 });
 

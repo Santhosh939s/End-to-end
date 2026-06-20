@@ -43,7 +43,7 @@ router.post('/requests/send', async (req: AuthRequest, res) => {
 router.post('/requests/:id/accept', async (req: AuthRequest, res) => {
   try {
     const currentUserId = req.user!.id;
-    const friendship = await FriendRepository.findFriendshipById(req.params.id);
+    const friendship = await FriendRepository.findFriendshipById(req.params.id as string);
 
     if (!friendship) return res.status(404).json({ error: 'Request not found' });
     if (friendship.actionUserId === currentUserId) return res.status(400).json({ error: 'Cannot accept your own request' });
@@ -65,7 +65,7 @@ router.post('/requests/:id/accept', async (req: AuthRequest, res) => {
 router.post('/requests/:id/reject', async (req: AuthRequest, res) => {
   try {
     const currentUserId = req.user!.id;
-    const friendship = await FriendRepository.findFriendshipById(req.params.id);
+    const friendship = await FriendRepository.findFriendshipById(req.params.id as string);
 
     if (!friendship) return res.status(404).json({ error: 'Request not found' });
     if (friendship.actionUserId === currentUserId) return res.status(400).json({ error: 'Cannot reject your own request' });

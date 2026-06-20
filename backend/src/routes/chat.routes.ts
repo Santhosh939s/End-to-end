@@ -43,7 +43,7 @@ router.get('/', async (req: AuthRequest, res) => {
 router.get('/:id/messages', async (req: AuthRequest, res) => {
   try {
     const currentUserId = req.user!.id;
-    const conversation = await ChatRepository.findConversationById(req.params.id);
+    const conversation = await ChatRepository.findConversationById(req.params.id as string);
     
     if (!conversation) return res.status(404).json({ error: 'Conversation not found' });
     if (conversation.user1Id !== currentUserId && conversation.user2Id !== currentUserId) {
