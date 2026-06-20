@@ -175,7 +175,10 @@ const Chats = () => {
               {conversations.map(chat => (
                 <button
                   key={chat.id}
-                  onClick={() => setActiveChat(chat)}
+                  onClick={() => {
+                    setActiveChat(chat);
+                    setMessages([]); // Clear previous messages instantly
+                  }}
                   className={clsx(
                     "w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left",
                     activeChat?.id === chat.id 
@@ -229,7 +232,7 @@ const Chats = () => {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
-              {isLoadingMessages ? (
+              {messages.length === 0 && isLoadingMessages ? (
                 <div className="flex-1 flex items-center justify-center">
                   <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
@@ -242,7 +245,8 @@ const Chats = () => {
                   </p>
                 </div>
               ) : (
-                messages.map((msg, index) => {
+                <>
+                  {messages.map((msg, index) => {
                   const isMe = msg.senderId === currentUser?.id;
                   return (
                     <div 
@@ -263,7 +267,8 @@ const Chats = () => {
                       </p>
                     </div>
                   );
-                })
+                })}
+                </>
               )}
               <div ref={messagesEndRef} />
             </div>
