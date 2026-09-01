@@ -42,3 +42,28 @@ export const sendOtpEmail = async (to: string, otp: string) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+export const sendEmail = async (to: string, subject: string, html: string) => {
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+
+  if (!user || !pass) {
+    console.warn("EMAIL_USER or EMAIL_PASS not set in environment variables.");
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user,
+      pass,
+    },
+  });
+
+  await transporter.sendMail({
+    from: `"CipherLink" <${user}>`,
+    to,
+    subject,
+    html,
+  });
+};
